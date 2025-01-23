@@ -23,7 +23,7 @@ public class Game1 : Game
 
     public Game1()
     {
-        CurrMode = Mode.MAIN_MENU;
+        CurrMode = Mode.NONE;
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -69,33 +69,48 @@ public class Game1 : Game
 
     public void SwitchMode(Mode mode, string ip = "")
     {
+        if (mode == CurrMode) return;
+        
+        if (_mainMenu != null)
+        {
+            Components.Remove(_mainMenu);
+            _mainMenu.Dispose();
+            _mainMenu = null;
+        }
+        if (_host != null) 
+        {
+            Components.Remove(_host);
+            _host.Dispose();
+            _host = null;
+        }
+        if (_client != null) 
+        {
+            Components.Remove(_client);
+            _client.Dispose();
+            _client = null;
+        }
+        if (_joinForm != null) 
+        {
+            Components.Remove(_joinForm);
+            _joinForm.Dispose();
+            _joinForm = null;
+        }
+        
         switch (mode)
         {
             case Mode.MAIN_MENU:
-                if (_host != null) Components.Remove(_host);
-                if (_client != null) Components.Remove(_client);
-                if (_joinForm != null) Components.Remove(_joinForm);
                 _mainMenu = new (this);
                 Components.Add(_mainMenu);
                 break;
             case Mode.HOST:
-                if (_mainMenu != null) Components.Remove(_mainMenu);
-                if (_client != null) Components.Remove(_client);
-                if (_joinForm != null) Components.Remove(_joinForm);
                 _host = new (this);
                 Components.Add(_host);
                 break;
             case Mode.CLIENT:
-                if (_mainMenu != null) Components.Remove(_mainMenu);
-                if (_host != null) Components.Remove(_host);
-                if (_joinForm != null) Components.Remove(_joinForm);
                 _client = new(this, ip);
                 Components.Add(_client);
                 break;
             case Mode.JOIN_FORM:
-                if (_mainMenu != null) Components.Remove(_mainMenu);
-                if (_host != null) Components.Remove(_host);
-                if (_client != null) Components.Remove(_client);
                 _joinForm = new(this);
                 Components.Add(_joinForm);
                 break;
@@ -105,7 +120,7 @@ public class Game1 : Game
         }
         CurrMode = mode;
     }
-    
+
     public string GetLocalIPAddress()
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());

@@ -9,15 +9,17 @@ using Myra.Graphics2D.UI;
 
 namespace PaintTogether;
 
-public class Client : IGameComponent
+public class Client : DrawableGameComponent
 {
     private readonly Game1 _game;
     private GameView _gameView;
     private string _ipLocal;
     private string _ipHost;
     private readonly Socket _socket = new (SocketType.Stream, ProtocolType.Tcp);
+
+    private bool _isDisconnected = false;
     
-    public Client(Game1 game, string ipHost)
+    public Client(Game1 game, string ipHost) : base(game)
     {
         _game = game;
         _ipHost = ipHost;
@@ -26,8 +28,9 @@ public class Client : IGameComponent
         _socket.ReceiveTimeout = 100;
     }
 
-    public void Initialize()
+    public override void Initialize()
     {
+        base.Initialize();
         if (!Connect())
         {
             Console.WriteLine("Failed to connect");
@@ -39,6 +42,7 @@ public class Client : IGameComponent
         _game.Components.Add(_gameView);
         
         _gameView.Whiteboard.AddLayer();
+        _gameView.Whiteboard.SwitchLayerDrawDir = true;
         
         Task.Run(Receive);
         Task.Run(Send);
@@ -48,7 +52,7 @@ public class Client : IGameComponent
     {
         try
         {
-            _socket.Connect(IPAddress.Parse(_ipHost), 80);
+            _socket.Connect(IPAddress.Parse(_ipHost), 26666);
         }
         catch (Exception ex)
         {
@@ -60,9 +64,11 @@ public class Client : IGameComponent
     
     private bool Disconnect()
     {
+        if (_isDisconnected) return true;
         try
         {
             _game.SwitchMode(Mode.MAIN_MENU);
+            _isDisconnected = true;
         }
         catch (Exception ex)
         {
@@ -80,8 +86,10 @@ public class Client : IGameComponent
             {
                 byte[] serverBuffer = new byte[_gameView.Whiteboard.Width * _gameView.Whiteboard.Height * 4];
                 int bytesReceived = await _socket.ReceiveAsync(serverBuffer);
-
-                _gameView.Whiteboard.DrawToLayer(1, serverBuffer);
+                
+                if (bytesReceived != serverBuffer.Length) continue;
+                
+                _gameView.Whiteboard.DrawToLayer(0, serverBuffer);
             }
             catch (Exception ex)
             {
@@ -100,7 +108,7 @@ public class Client : IGameComponent
             try
             {
                 int bytesSent = 0;
-                bytesSent += await _socket.SendAsync(new ArraySegment<byte>(_gameView.Whiteboard.GetLayer(0)));
+                bytesSent += await _socket.SendAsync(new ArraySegment<byte>(_gameView.Whiteboard.GetLayer(1)));
             }
             catch (Exception ex)
             {
@@ -110,5 +118,11 @@ public class Client : IGameComponent
             }
             Thread.Sleep(10);
         }
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (_gameView != null) _gameView.Dispose();
+        base.Dispose(disposing);
     }
 }

@@ -26,6 +26,16 @@ public class GameView : DrawableGameComponent
         base.Initialize();
     }
 
+    protected override void Dispose(bool disposing)
+    {
+        if (Whiteboard != null)
+        {
+            _game.Components.Remove(Whiteboard);
+            Whiteboard.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+
     protected override void LoadContent()
     {
         base.LoadContent();

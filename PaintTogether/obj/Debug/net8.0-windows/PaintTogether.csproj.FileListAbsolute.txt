@@ -35,3 +35,4 @@ C:\Users\Lukas\RiderProjects\PaintTogether\PaintTogether\obj\Debug\net8.0-window
 C:\Users\Lukas\RiderProjects\PaintTogether\PaintTogether\obj\Debug\net8.0-windows\PaintTogether.pdb
 C:\Users\Lukas\RiderProjects\PaintTogether\PaintTogether\obj\Debug\net8.0-windows\PaintTogether.genruntimeconfig.cache
 C:\Users\Lukas\RiderProjects\PaintTogether\PaintTogether\obj\Debug\net8.0-windows\ref\PaintTogether.dll
+C:\Users\Lukas\RiderProjects\PaintTogether\PaintTogether\obj\Debug\net8.0-windows\PaintTogether.sourcelink.json

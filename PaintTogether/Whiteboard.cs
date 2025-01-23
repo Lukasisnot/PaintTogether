@@ -21,6 +21,8 @@ public class Whiteboard : DrawableGameComponent
     private Color _brushColor = Color.Black;
     private Color _backgroundColor = Color.White;
     private readonly List<Texture2D> _layers = new();
+
+    public bool SwitchLayerDrawDir = false;
     
     public Whiteboard(int width, int height, Point position, Game1 game) : base(game)
     {
@@ -67,7 +69,8 @@ public class Whiteboard : DrawableGameComponent
 
     public void AddLayer()
     {
-        _layers.Add(new Texture2D(_game.GraphicsDevice, Width, Height));
+        // _layers.Add(new Texture2D(_game.GraphicsDevice, Width, Height));
+        _layers.Insert(0, new Texture2D(_game.GraphicsDevice, Width, Height));
     }
     
     public void RemoveLayer(int index)
@@ -102,19 +105,27 @@ public class Whiteboard : DrawableGameComponent
 
     public void DrawLayers()
     {
-        foreach (var layer in _layers)
-        {
-            Rectangle destRect = new((int)_position.X, (int)_position.Y, Width, Height);
-            _game.SpriteBatch.Draw(layer, destRect, Color.White);
-        }
+        if (SwitchLayerDrawDir)
+            foreach (var layer in _layers)
+            {
+                Rectangle destRect = new((int)_position.X, (int)_position.Y, Width, Height);
+                _game.SpriteBatch.Draw(layer, destRect, Color.White);
+            }
+        else
+            for (int i = _layers.Count - 1; i > -1; i--)
+            {
+                Rectangle destRect = new((int)_position.X, (int)_position.Y, Width, Height);
+                _game.SpriteBatch.Draw(_layers[i], destRect, Color.White);
+            }
     }
 
-    public byte[] GetCombinedLayers(int startLayerIndex)
+    public byte[] GetCombinedLayers(int skipLayer)
     {
         byte[] output = new byte[Width * Height * 4];
 
-        for (int k = startLayerIndex; k < _layers.Count; k++)
+        for (int k = 0; k < _layers.Count; k++)
         {
+            if (k == skipLayer) continue;
             byte[] layer = GetLayer(k);
             for (int i = 0; i < Width * Height * 4; i += 4)
             {
@@ -151,6 +162,6 @@ public class Whiteboard : DrawableGameComponent
                 }
             }
         }
-        DrawToLayer(0, buffer);
+        DrawToLayer(_layers.Count - 1, buffer);
     }
 }

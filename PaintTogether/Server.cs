@@ -21,8 +21,8 @@ public class Server : DrawableGameComponent
     {
         _game = game;
         _ipLocal = _game.GetLocalIPAddress();
-        _ipLocal = "127.0.0.1";
-        EndPoint endPoint = new IPEndPoint(IPAddress.Parse(_ipLocal), 80);
+        // _ipLocal = "127.0.0.1";
+        EndPoint endPoint = new IPEndPoint(IPAddress.Parse(_ipLocal), 26666);
         try
         {
             _socket.Bind(endPoint);
@@ -75,7 +75,7 @@ public class Server : DrawableGameComponent
                 try
                 {
                     int bytesSent = 0;
-                    bytesSent += await socket.SendAsync(new ArraySegment<byte>(_gameView.Whiteboard.GetCombinedLayers(0)));
+                    bytesSent += await socket.SendAsync(new ArraySegment<byte>(_gameView.Whiteboard.GetCombinedLayers(i)));
                 }
                 catch (Exception ex)
                 {
@@ -98,7 +98,7 @@ public class Server : DrawableGameComponent
                     byte[] clientBuffer = new byte[_gameView.Whiteboard.Width * _gameView.Whiteboard.Height * 4];
                     int bytesReceived = await _sockets[i].ReceiveAsync(clientBuffer);
 
-                    _gameView.Whiteboard.DrawToLayer(i + 1, clientBuffer);
+                    _gameView.Whiteboard.DrawToLayer(i, clientBuffer);
                 }
                 catch (Exception ex)
                 {
