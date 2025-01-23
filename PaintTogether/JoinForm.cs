@@ -63,7 +63,7 @@ public class JoinForm : DrawableGameComponent
         {
             Content = new Label
             {
-                Text = "Join LAN"
+                Text = "Join"
             }
         };
         Grid.SetColumn(joinBtn, 0);
